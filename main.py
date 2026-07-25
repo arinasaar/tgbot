@@ -143,25 +143,9 @@ async def help_command(message: Message):
 
 @dp.message(Command("movie"))
 async def movie(message: Message):
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="Фильм",
-                    callback_data="type_movie")
-            ],
-            [
-                InlineKeyboardButton(
-                    text="Сериал",
-                    callback_data="type_tv")
-            ],
-            [
-                InlineKeyboardButton(
-                    text="🇰🇷 Дорама",
-                    callback_data="type_kdrama")]])
     await message.answer(
         "Что хотите посмотреть?",
-        reply_markup=keyboard
+        reply_markup=type_keyboard()
     )
 
 
@@ -182,6 +166,10 @@ def genres_keyboard(content_type: str) -> InlineKeyboardMarkup:
             row = []
     if row:
         buttons.append(row)
+
+    buttons.append([
+        InlineKeyboardButton(text="🏠 В начало", callback_data="restart")
+    ])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -282,6 +270,12 @@ async def choose_genre(callback: CallbackQuery):
                 InlineKeyboardButton(
                     text="⬅️ К жанрам",
                     callback_data=f"back_{content_type}"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🏠 В начало",
+                    callback_data="restart"
                 )
             ]
         ]
