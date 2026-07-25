@@ -331,7 +331,6 @@ async def text_messages(message: Message):
                     condition = data["current"]["condition"]["text"]
 
                     await message.answer(
-                        f"🌍 Город: {city}\n"
                         f"🌡 Температура: {temp}°C\n"
                         f"☁️ {condition}"
                     )
