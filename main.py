@@ -120,7 +120,7 @@ TV_GENRES = {
 # /start
 @dp.message(Command("start"))
 async def start(message: Message):
-    await message.answer(f"Привет, {message.from_user.first_name}!")
+    await message.answer(f"Привет, {message.from_user.first_name}! Рад тебя видеть!")
 
 
 # /weather
@@ -377,6 +377,11 @@ async def text_messages(message: Message):
 
     elif text in ["посоветуй фильм", "посоветуй дораму", "посоветуй сериал"]:
         await message.answer("Напиши /movie и найди себе подходящее😉")
+
+    elif text in ["спасибо", "ура", "благодарю", "спасибо тебе"]:
+        await message.answer("Рад помочь😊")
+    else:
+        await message.answer("Не понимаю🤔. Скорее всего мой код еще не позволяет распознать твое сообщение.")
 
 
 # Фото
