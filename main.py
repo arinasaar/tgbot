@@ -16,8 +16,6 @@ dp = Dispatcher()
 
 waiting_weather = {}
 
-
-# Жанры фильмов (эндпоинт discover/movie)
 MOVIE_GENRES = {
     28: "Боевик",
     12: "Приключения",
@@ -42,7 +40,8 @@ KURYANA_BASE = "https://kuryana.tbdh.app"  # неофициальный API-ск
 
 
 async def get_mdl_info(session: aiohttp.ClientSession, title: str) -> dict | None:
-
+    """Ищет тайтл на MyDramaList через kuryana и возвращает синопсис/рейтинг MDL.
+    При любой ошибке или отсутствии совпадений возвращает None."""
     try:
         async with session.get(
                 f"{KURYANA_BASE}/search/q/{title}",
@@ -137,7 +136,30 @@ async def help_command(message: Message):
         "Команды:\n"
         "/start - запуск\n"
         "/weather - погода\n"
-        "/help - помощь"
+        "/help - помощь\n"
+        "/movie - фильмы, сериалы, дорамы"
+    )
+
+
+def type_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Фильм",
+                    callback_data="type_movie")
+            ],
+            [
+                InlineKeyboardButton(
+                    text="Сериал",
+                    callback_data="type_tv")
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🇰🇷 Дорама",
+                    callback_data="type_kdrama")
+            ]
+        ]
     )
 
 
@@ -191,7 +213,7 @@ async def choose_type(callback: CallbackQuery):
 async def choose_genre(callback: CallbackQuery):
     _, content_type, genre_id = callback.data.split("_", 2)
 
-    # У дорам нет своего типа в TMDB — это сериалы (tv) с origin_country=KR
+    # У дорам нет своего типа в TMDB — это сериалы (tv) с origin_country
     tmdb_type = "movie" if content_type == "movie" else "tv"
 
     params = {
@@ -291,6 +313,17 @@ async def choose_genre(callback: CallbackQuery):
         await callback.message.answer(caption, reply_markup=again_keyboard)
 
 
+# Возврат к выбору типа контента (кнопка "🏠 В начало")
+@dp.callback_query(F.data == "restart")
+async def restart_selection(callback: CallbackQuery):
+    await callback.message.answer(
+        "Что хотите посмотреть?",
+        reply_markup=type_keyboard()
+    )
+    await callback.answer()
+
+
+# Возврат к выбору жанра из-под результата (кнопка "⬅️ К жанрам")
 @dp.callback_query(F.data.startswith("back_"))
 async def back_to_genres(callback: CallbackQuery):
     content_type = callback.data.split("_", 1)[1]
@@ -302,6 +335,7 @@ async def back_to_genres(callback: CallbackQuery):
     await callback.answer()
 
 
+# Единственный обработчик текстовых сообщений
 @dp.message(F.text)
 async def text_messages(message: Message):
     text = message.text.lower().strip()
@@ -366,14 +400,16 @@ async def text_messages(message: Message):
             "Команды:\n"
             "/start - запуск\n"
             "/weather - погода\n"
-            "/help - помощь"
-            "/movie - фильмы, сериалы, дорамы")
+            "/help - помощь\n"
+            "/movie - фильмы, сериалы, дорамы"
+        )
 
     elif text in ["посоветуй фильм", "посоветуй дораму", "посоветуй сериал"]:
         await message.answer("Напиши /movie и найди себе подходящее😉")
 
     elif text in ["спасибо", "ура", "благодарю", "спасибо тебе"]:
         await message.answer("Рад помочь😊")
+
     else:
         await message.answer("Не понимаю🤔. Скорее всего мой код еще не позволяет распознать твое сообщение.")
 
