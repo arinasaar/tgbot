@@ -40,8 +40,7 @@ KURYANA_BASE = "https://kuryana.tbdh.app"  # неофициальный API-ск
 
 
 async def get_mdl_info(session: aiohttp.ClientSession, title: str) -> dict | None:
-    """Ищет тайтл на MyDramaList через kuryana и возвращает синопсис/рейтинг MDL.
-    При любой ошибке или отсутствии совпадений возвращает None."""
+  
     try:
         async with session.get(
                 f"{KURYANA_BASE}/search/q/{title}",
@@ -363,7 +362,7 @@ async def text_messages(message: Message):
                         f"☁️ {condition}"
                     )
                 else:
-                    await message.answer("❌Город не найден")
+                    await message.answer("❌Город не найден. Напиши еще раз /weather")
 
         return
 
@@ -404,7 +403,7 @@ async def text_messages(message: Message):
             "/movie - фильмы, сериалы, дорамы"
         )
 
-    elif text in ["посоветуй фильм", "посоветуй дораму", "посоветуй сериал", "я не знаю что посмотреть", "я не знаю, что посмотреть"]:
+    elif text in ["фильм", "посоветуй фильм", "посоветуй дораму", "посоветуй сериал", "я не знаю что посмотреть", "я не знаю, что посмотреть"]:
         await message.answer("Напиши /movie и найди себе подходящее😉")
 
     elif text in ["спасибо", "ура", "благодарю", "спасибо тебе", "молодец"]:
@@ -446,11 +445,10 @@ async def delete_photo(callback: CallbackQuery):
 
 
 async def main():
-    await dp.start_polling(
-        bot,
-        handle_signals=False
-    )
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
